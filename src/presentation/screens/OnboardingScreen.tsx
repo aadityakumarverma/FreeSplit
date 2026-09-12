@@ -3,23 +3,22 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
   TouchableOpacity,
 } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Colors } from '../../theme/Colors';
 import { Typography } from '../../theme/Typography';
 import { Button } from '../components/common/Button';
-import { StatusBadge } from '../components/common/StatusBadge';
+import { ParticleBackground } from '../components/common/ParticleBackground';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 
 export const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
@@ -30,52 +29,62 @@ export const OnboardingScreen: React.FC = () => {
     }
   };
 
-  const handleSkip = () => {
+  const handleSignIn = () => {
     navigation.navigate('Home');
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.container}>
-        {/* Top Header */}
-        <View style={styles.header}>
-          <View style={styles.stepIndicator}>
-            <Text style={styles.stepText}>
-              PHASE 0{currentStep + 1} / 03
-            </Text>
-          </View>
-          <TouchableOpacity onPress={handleSkip} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.skipText}>SKIP</Text>
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      {/* Animated Moving Particles Background */}
+      <ParticleBackground nodeCount={14} />
 
-        {/* Visual Content Area */}
+      <View
+        style={[
+          styles.contentWrapper,
+          {
+            paddingTop: Math.max(insets.top + 10, 24),
+            paddingBottom: Math.max(insets.bottom + 10, 24),
+          },
+        ]}
+      >
+        {/* Visual Graphic Area */}
         <View style={styles.visualContainer}>
           {currentStep === 0 && <ScreenOneVisual />}
           {currentStep === 1 && <ScreenTwoVisual />}
           {currentStep === 2 && <ScreenThreeVisual />}
         </View>
 
-        {/* Bottom Content Area */}
-        <View style={styles.bottomArea}>
-          <Text style={styles.title}>
+        {/* Text and Actions Section */}
+        <View style={styles.bottomSection}>
+          {/* Tech Status Label */}
+          <View style={styles.techLabelRow}>
+            <Text style={styles.cyanBullet}>●</Text>
+            <Text style={styles.techLabelText}>
+              {currentStep === 0 && 'FINANCIAL NETWORK INITIALIZING...'}
+              {currentStep === 1 && 'BALANCE ENGINE ACTIVE'}
+              {currentStep === 2 && 'SETTLEMENT ENGINE OPTIMIZED'}
+            </Text>
+          </View>
+
+          {/* Heading */}
+          <Text style={styles.heading}>
             {currentStep === 0 && 'Split smarter.'}
             {currentStep === 1 && 'Know who owes whom.'}
             {currentStep === 2 && 'Settle with less effort.'}
           </Text>
 
-          <Text style={styles.description}>
+          {/* Subheading */}
+          <Text style={styles.subheading}>
             {currentStep === 0 &&
-              'One command center for every shared expense across roommates, trips, and friends.'}
+              'One command center for every shared expense.'}
             {currentStep === 1 &&
-              'FreeSplit keeps every shared payment clear, transparent and completely stress-free.'}
+              'FreeSplit keeps every shared payment clear, transparent and easy to understand.'}
             {currentStep === 2 &&
-              'Our debt simplification engine optimizes group balances so fewer total payments are needed.'}
+              'FreeSplit optimizes group balances so fewer payments are needed.'}
           </Text>
 
-          {/* Dots Indicator */}
-          <View style={styles.dotsRow}>
+          {/* Progress Indicators */}
+          <View style={styles.dotsContainer}>
             {[0, 1, 2].map((idx) => (
               <View
                 key={idx}
@@ -87,199 +96,214 @@ export const OnboardingScreen: React.FC = () => {
             ))}
           </View>
 
-          {/* Action Buttons */}
+          {/* Primary Action Button */}
           <Button
-            title={currentStep === 2 ? 'CREATE MY ACCOUNT' : 'NEXT'}
+            title={
+              currentStep === 0
+                ? 'GET STARTED'
+                : currentStep === 1
+                ? 'NEXT'
+                : 'CREATE MY ACCOUNT'
+            }
             variant={currentStep === 2 ? 'gradient' : 'primary'}
             size="lg"
             onPress={handleNext}
             style={styles.actionButton}
           />
 
+          {/* Sign In Link */}
           <TouchableOpacity
-            onPress={handleSkip}
-            style={styles.secondaryAction}
+            onPress={handleSignIn}
+            style={styles.signInRow}
             activeOpacity={0.7}
           >
-            <Text style={styles.secondaryActionText}>
-              ALREADY HAVE AN ACCOUNT? <Text style={styles.cyanLink}>SIGN IN</Text>
+            <Text style={styles.signInText}>
+              Already have an account?{' '}
+              <Text style={styles.signInLink}>Sign in</Text>
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
-// --- VISUAL 1: Interactive Network Nodes ---
+// --- SCREEN 1: Orbital Financial Network (Matches Figma Image 1) ---
 const ScreenOneVisual = () => {
-  const nodes = [
-    { label: 'Aarav', color: Colors.green, x: 120, y: 30 },
-    { label: 'Priya', color: Colors.purple, x: 200, y: 80 },
-    { label: 'You', color: Colors.cyan, x: 170, y: 170 },
-    { label: 'Rohit', color: Colors.amber, x: 40, y: 150 },
-    { label: 'Sneha', color: Colors.danger, x: 40, y: 60 },
+  // Center is at (130, 115) in a 260x230 viewBox
+  const CX = 130;
+  const CY = 115;
+
+  const satellites = [
+    { label: 'Aarav', color: '#00F5A0', initial: 'A', x: 130, y: 32 },
+    { label: 'Priya', color: '#7C3CFF', initial: 'P', x: 202, y: 88 },
+    { label: 'Sneha', color: '#FF4D6D', initial: 'S', x: 182, y: 175 },
+    { label: 'You', color: '#00D9FF', initial: 'Y', x: 78, y: 175 },
+    { label: 'Rohit', color: '#FFAA00', initial: 'R', x: 58, y: 85 },
   ];
 
   return (
-    <View style={styles.networkContainer}>
-      <View style={styles.badgeRow}>
-        <StatusBadge status="online" label="FINANCIAL NETWORK ONLINE" />
+    <View style={styles.graphicBox}>
+      {/* Concentric Guide Rings and Connector Lines */}
+      <Svg width={260} height={230} style={StyleSheet.absoluteFill}>
+        {/* Outer dashed guide circle */}
+        <Circle
+          cx={CX}
+          cy={CY}
+          r={90}
+          stroke="rgba(0, 217, 255, 0.12)"
+          strokeWidth={1}
+          fill="none"
+        />
+
+        {/* Inner subtle guide circle */}
+        <Circle
+          cx={CX}
+          cy={CY}
+          r={55}
+          stroke="rgba(0, 217, 255, 0.08)"
+          strokeWidth={0.8}
+          strokeDasharray="4 4"
+          fill="none"
+        />
+
+        {/* Radial dashed lines to satellites */}
+        {satellites.map((s, i) => (
+          <Line
+            key={i}
+            x1={CX}
+            y1={CY}
+            x2={s.x}
+            y2={s.y}
+            stroke="rgba(0, 217, 255, 0.22)"
+            strokeWidth={0.9}
+            strokeDasharray="3 3"
+          />
+        ))}
+
+        {/* Faint ambient micro-nodes */}
+        <Circle cx={100} cy={60} r={2} fill="#00F5A0" fillOpacity={0.6} />
+        <Circle cx={220} cy={65} r={1.5} fill="#7C3CFF" fillOpacity={0.5} />
+        <Circle cx={105} cy={140} r={2} fill="#00F5A0" fillOpacity={0.5} />
+      </Svg>
+
+      {/* Central Glowing Cyan Ring Core */}
+      <View style={[styles.centerCoreWrapper, { left: CX - 22, top: CY - 22 }]}>
+        <View style={styles.centerGlowRing}>
+          <View style={styles.centerCoreDot} />
+        </View>
       </View>
 
-      <View style={styles.graphWrapper}>
-        <Svg width={240} height={210} style={StyleSheet.absoluteFill}>
-          {nodes.map((n, i) => (
-            <Line
-              key={i}
-              x1={120}
-              y1={105}
-              x2={n.x}
-              y2={n.y}
-              stroke="rgba(0, 217, 255, 0.25)"
-              strokeWidth={1}
-              strokeDasharray="4 4"
-            />
-          ))}
-          {/* Outer ring guide */}
-          <Circle
-            cx={120}
-            cy={105}
-            r={85}
-            stroke="rgba(0, 217, 255, 0.08)"
-            strokeWidth={1}
-          />
-        </Svg>
-
-        {/* Center Node */}
-        <View style={styles.centerNode}>
-          <View style={styles.centerNodeCore} />
-        </View>
-
-        {/* Satellite Member Nodes */}
-        {nodes.map((node, i) => (
+      {/* Satellite Node Badges with Initial & Label below */}
+      {satellites.map((node, i) => (
+        <View
+          key={i}
+          style={[
+            styles.satelliteItem,
+            { left: node.x - 18, top: node.y - 18 },
+          ]}
+        >
           <View
-            key={i}
             style={[
-              styles.satelliteNodeWrapper,
-              { left: node.x - 18, top: node.y - 18 },
+              styles.satelliteCircle,
+              {
+                borderColor: node.color,
+                backgroundColor: `${node.color}15`,
+              },
             ]}
           >
-            <View
-              style={[
-                styles.satelliteNode,
-                {
-                  borderColor: node.color,
-                  backgroundColor: `${node.color}15`,
-                },
-              ]}
-            >
-              <Text style={[styles.satelliteInitial, { color: node.color }]}>
-                {node.label[0]}
-              </Text>
-            </View>
-            <Text style={styles.satelliteLabel}>{node.label}</Text>
+            <Text style={[styles.satelliteInitialText, { color: node.color }]}>
+              {node.initial}
+            </Text>
           </View>
-        ))}
-      </View>
+          <Text style={styles.satelliteLabelText}>{node.label}</Text>
+        </View>
+      ))}
     </View>
   );
 };
 
-// --- VISUAL 2: Live Balance Flow Cards ---
+// --- SCREEN 2: Balance Flows ---
 const ScreenTwoVisual = () => {
   const flows = [
-    { from: 'Aarav', to: 'Priya', amount: '₹1,200', fromColor: Colors.cyan, toColor: Colors.purple },
-    { from: 'You', to: 'Aarav', amount: '₹850', fromColor: Colors.green, toColor: Colors.cyan },
-    { from: 'Rohit', to: 'You', amount: '₹1,000', fromColor: Colors.amber, toColor: Colors.green },
+    { from: 'Aarav', to: 'Priya', amount: '₹1,200', fromColor: '#00D9FF', toColor: '#7C3CFF' },
+    { from: 'You', to: 'Aarav', amount: '₹850', fromColor: '#00F5A0', toColor: '#00D9FF' },
+    { from: 'Rohit', to: 'You', amount: '₹1,000', fromColor: '#FFAA00', toColor: '#00F5A0' },
   ];
 
   return (
-    <View style={styles.flowsContainer}>
-      <View style={styles.badgeRow}>
-        <StatusBadge status="synced" label="BALANCE ENGINE // ACTIVE" />
-      </View>
-
-      <View style={styles.flowList}>
-        {flows.map((flow, i) => (
-          <View key={i} style={styles.flowCard}>
-            <View
-              style={[
-                styles.flowAvatar,
-                {
-                  borderColor: flow.fromColor,
-                  backgroundColor: `${flow.fromColor}15`,
-                },
-              ]}
-            >
-              <Text style={[styles.flowInitial, { color: flow.fromColor }]}>
-                {flow.from[0]}
-              </Text>
-            </View>
-
-            <View style={styles.flowDetails}>
-              <Text style={styles.flowNames}>
-                {flow.from} <Text style={styles.flowArrow}>→</Text> {flow.to}
-              </Text>
-            </View>
-
-            <Text style={styles.flowAmount}>{flow.amount}</Text>
-
-            <View
-              style={[
-                styles.flowAvatar,
-                {
-                  borderColor: flow.toColor,
-                  backgroundColor: `${flow.toColor}15`,
-                },
-              ]}
-            >
-              <Text style={[styles.flowInitial, { color: flow.toColor }]}>
-                {flow.to[0]}
-              </Text>
-            </View>
+    <View style={styles.flowListBox}>
+      {flows.map(({ from, to, amount, fromColor, toColor }, i) => (
+        <View key={i} style={styles.flowCard}>
+          <View
+            style={[
+              styles.flowAvatar,
+              { borderColor: fromColor, backgroundColor: `${fromColor}15` },
+            ]}
+          >
+            <Text style={[styles.flowAvatarText, { color: fromColor }]}>
+              {from[0]}
+            </Text>
           </View>
-        ))}
-      </View>
+
+          <View style={styles.flowCenter}>
+            <Text style={styles.flowNames}>
+              {from} <Text style={styles.flowArrow}>→</Text> {to}
+            </Text>
+          </View>
+
+          <Text style={styles.flowAmount}>{amount}</Text>
+
+          <View
+            style={[
+              styles.flowAvatar,
+              { borderColor: toColor, backgroundColor: `${toColor}15` },
+            ]}
+          >
+            <Text style={[styles.flowAvatarText, { color: toColor }]}>
+              {to[0]}
+            </Text>
+          </View>
+        </View>
+      ))}
     </View>
   );
 };
 
-// --- VISUAL 3: Settlement Optimization Comparison ---
+// --- SCREEN 3: Settlement Engine Comparison ---
 const ScreenThreeVisual = () => {
   return (
-    <View style={styles.settlementContainer}>
-      <View style={styles.badgeRow}>
-        <StatusBadge status="optimized" label="SETTLEMENT ENGINE OPTIMIZED" />
-      </View>
-
+    <View style={styles.settlementBox}>
       {/* Before Box */}
       <View style={styles.comparisonBoxBefore}>
-        <Text style={styles.comparisonLabelBefore}>BEFORE</Text>
-        <Text style={styles.comparisonNumber}>4 TRANSACTIONS</Text>
-        <View style={styles.barRow}>
+        <Text style={styles.comparisonTagBefore}>BEFORE</Text>
+        <Text style={styles.comparisonTitle}>4 TRANSACTIONS</Text>
+        <View style={styles.barGroup}>
           {[0, 1, 2, 3].map((idx) => (
             <View key={idx} style={styles.redBar} />
           ))}
         </View>
       </View>
 
-      {/* Flow Indicator Arrow */}
-      <View style={styles.settlementArrowContainer}>
-        <View style={styles.settlementEngineBadge}>
-          <Text style={styles.settlementEngineText}>↓ DEBT SIMPLIFICATION ↓</Text>
+      {/* Downward Engine Flow */}
+      <View style={styles.engineBadgeContainer}>
+        <View style={styles.engineBadge}>
+          <Text style={styles.engineBadgeDot}>●</Text>
+          <Text style={styles.engineBadgeText}>SETTLEMENT ENGINE</Text>
+          <Text style={styles.engineBadgeDot}>●</Text>
         </View>
+        <Text style={styles.engineArrowText}>↓</Text>
       </View>
 
       {/* After Box */}
       <View style={styles.comparisonBoxAfter}>
-        <Text style={styles.comparisonLabelAfter}>AFTER</Text>
-        <Text style={styles.comparisonNumber}>2 TRANSACTIONS</Text>
-        <View style={styles.barRow}>
+        <Text style={styles.comparisonTagAfter}>AFTER</Text>
+        <Text style={styles.comparisonTitle}>2 TRANSACTIONS</Text>
+        <View style={styles.barGroup}>
           <View style={styles.greenBar} />
           <View style={styles.greenBar} />
-          <View style={styles.grayBar} />
-          <View style={styles.grayBar} />
+          <View style={styles.emptyBar} />
+          <View style={styles.emptyBar} />
         </View>
       </View>
     </View>
@@ -287,148 +311,128 @@ const ScreenThreeVisual = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    backgroundColor: '#02060B',
+  },
+  contentWrapper: {
+    flex: 1,
+    paddingHorizontal: 24,
     justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 40,
-  },
-  stepIndicator: {
-    borderColor: 'rgba(0, 217, 255, 0.2)',
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    backgroundColor: 'rgba(0, 217, 255, 0.04)',
-  },
-  stepText: {
-    fontFamily: Typography.family.mono,
-    fontSize: 9,
-    letterSpacing: 1.2,
-    color: Colors.cyan,
-  },
-  skipText: {
-    fontFamily: Typography.family.mono,
-    fontSize: 10,
-    letterSpacing: 1.5,
-    color: Colors.textMuted,
   },
   visualContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10,
   },
-  bottomArea: {
-    paddingBottom: 8,
+  bottomSection: {
+    paddingBottom: 4,
   },
-  title: {
+  techLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cyanBullet: {
+    color: '#00D9FF',
+    fontSize: 8,
+    marginRight: 6,
+  },
+  techLabelText: {
+    fontFamily: Typography.family.mono,
+    fontSize: 9,
+    letterSpacing: 1.8,
+    color: '#00D9FF',
+    fontWeight: '600',
+  },
+  heading: {
     fontFamily: Typography.family.display,
-    fontSize: 26,
+    fontSize: 34,
     fontWeight: '700',
-    color: Colors.textPrimary,
-    letterSpacing: 0.5,
-    marginBottom: 6,
+    color: '#F4F8FC',
+    letterSpacing: 0.2,
+    marginBottom: 8,
+    lineHeight: 40,
   },
-  description: {
+  subheading: {
     fontFamily: Typography.family.body,
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: 16,
+    fontSize: 14,
+    color: '#8A98A8',
+    lineHeight: 20,
+    marginBottom: 22,
   },
-  dotsRow: {
+  dotsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   dot: {
-    height: 3,
+    height: 3.5,
     borderRadius: 2,
   },
   activeDot: {
     width: 24,
-    backgroundColor: Colors.cyan,
-    shadowColor: Colors.cyan,
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 4,
+    backgroundColor: '#00D9FF',
   },
   inactiveDot: {
     width: 6,
-    backgroundColor: Colors.border,
+    backgroundColor: 'rgba(18, 48, 67, 0.9)',
   },
   actionButton: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  secondaryAction: {
+  signInRow: {
     alignItems: 'center',
     paddingVertical: 4,
   },
-  secondaryActionText: {
-    fontFamily: Typography.family.mono,
-    fontSize: 9,
-    letterSpacing: 1,
-    color: Colors.textMuted,
+  signInText: {
+    fontFamily: Typography.family.body,
+    fontSize: 12,
+    color: '#526273',
   },
-  cyanLink: {
-    color: Colors.cyan,
-    fontWeight: '700',
+  signInLink: {
+    color: '#00D9FF',
+    fontWeight: '600',
   },
 
-  // Visual 1 Styles
-  networkContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  badgeRow: {
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  graphWrapper: {
-    width: 240,
-    height: 210,
+  // Screen 1 styles
+  graphicBox: {
+    width: 260,
+    height: 230,
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  centerNode: {
+  centerCoreWrapper: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerGlowRing: {
     width: 44,
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: Colors.cyan,
-    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+    borderColor: '#00D9FF',
+    backgroundColor: 'rgba(0, 217, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.cyan,
-    shadowOpacity: 0.6,
-    shadowRadius: 16,
-    elevation: 8,
   },
-  centerNodeCore: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: Colors.cyan,
+  centerCoreDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#00D9FF',
   },
-  satelliteNodeWrapper: {
+  satelliteItem: {
     position: 'absolute',
     alignItems: 'center',
+    width: 36,
   },
-  satelliteNode: {
+  satelliteCircle: {
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -436,33 +440,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  satelliteInitial: {
+  satelliteInitialText: {
     fontFamily: Typography.family.mono,
     fontSize: 11,
     fontWeight: '700',
   },
-  satelliteLabel: {
-    fontFamily: Typography.family.mono,
-    fontSize: 8,
-    color: Colors.textMuted,
+  satelliteLabelText: {
+    fontFamily: Typography.family.body,
+    fontSize: 9,
+    color: '#8A98A8',
     marginTop: 3,
-    letterSpacing: 0.5,
+    textAlign: 'center',
   },
 
-  // Visual 2 Styles
-  flowsContainer: {
+  // Screen 2 styles
+  flowListBox: {
     width: '100%',
-    paddingHorizontal: 8,
-  },
-  flowList: {
-    gap: 10,
+    gap: 12,
   },
   flowCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: Colors.cardElevated,
-    borderColor: Colors.border,
+    backgroundColor: '#07111C',
+    borderColor: '#123043',
     borderWidth: 1,
     borderRadius: 12,
     gap: 10,
@@ -475,34 +476,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  flowInitial: {
+  flowAvatarText: {
     fontFamily: Typography.family.mono,
     fontSize: 11,
     fontWeight: '700',
   },
-  flowDetails: {
+  flowCenter: {
     flex: 1,
   },
   flowNames: {
     fontFamily: Typography.family.body,
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: '#F4F8FC',
   },
   flowArrow: {
-    color: Colors.textMuted,
+    color: '#526273',
   },
   flowAmount: {
     fontFamily: Typography.family.mono,
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.cyan,
+    color: '#00D9FF',
   },
 
-  // Visual 3 Styles
-  settlementContainer: {
+  // Screen 3 styles
+  settlementBox: {
     width: '100%',
-    paddingHorizontal: 8,
     alignItems: 'center',
   },
   comparisonBoxBefore: {
@@ -511,23 +511,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 77, 109, 0.06)',
     borderColor: 'rgba(255, 77, 109, 0.3)',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
   },
-  comparisonLabelBefore: {
+  comparisonTagBefore: {
     fontFamily: Typography.family.mono,
     fontSize: 9,
     letterSpacing: 1.2,
-    color: Colors.danger,
+    color: '#FF4D6D',
     marginBottom: 4,
   },
-  comparisonNumber: {
+  comparisonTitle: {
     fontFamily: Typography.family.mono,
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: 8,
+    color: '#F4F8FC',
+    marginBottom: 10,
   },
-  barRow: {
+  barGroup: {
     flexDirection: 'row',
     gap: 4,
   },
@@ -535,26 +535,38 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255, 77, 109, 0.5)',
+    backgroundColor: 'rgba(255, 77, 109, 0.6)',
   },
-  settlementArrowContainer: {
+  engineBadgeContainer: {
     paddingVertical: 10,
     alignItems: 'center',
   },
-  settlementEngineBadge: {
+  engineBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 6,
-    borderColor: 'rgba(0, 217, 255, 0.3)',
+    borderColor: 'rgba(124, 60, 255, 0.35)',
     borderWidth: 1,
-    backgroundColor: 'rgba(0, 217, 255, 0.05)',
+    backgroundColor: 'rgba(124, 60, 255, 0.08)',
   },
-  settlementEngineText: {
+  engineBadgeDot: {
+    fontSize: 6,
+    color: '#7C3CFF',
+  },
+  engineBadgeText: {
     fontFamily: Typography.family.mono,
     fontSize: 8,
     letterSpacing: 1.2,
-    color: Colors.cyan,
+    color: '#7C3CFF',
     fontWeight: '700',
+  },
+  engineArrowText: {
+    color: 'rgba(0, 217, 255, 0.5)',
+    fontSize: 14,
+    marginTop: 2,
   },
   comparisonBoxAfter: {
     width: '100%',
@@ -562,25 +574,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 245, 160, 0.06)',
     borderColor: 'rgba(0, 245, 160, 0.35)',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
   },
-  comparisonLabelAfter: {
+  comparisonTagAfter: {
     fontFamily: Typography.family.mono,
     fontSize: 9,
     letterSpacing: 1.2,
-    color: Colors.green,
+    color: '#00F5A0',
     marginBottom: 4,
   },
   greenBar: {
     flex: 1,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Colors.green,
-    shadowColor: Colors.green,
-    shadowOpacity: 0.6,
-    shadowRadius: 4,
+    backgroundColor: '#00F5A0',
   },
-  grayBar: {
+  emptyBar: {
     flex: 1,
     height: 4,
     borderRadius: 2,

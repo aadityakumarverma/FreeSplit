@@ -57,7 +57,7 @@ export const Button: React.FC<ButtonProps> = ({
       <TouchableOpacity
         onPress={onPress}
         disabled={disabled || loading}
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         style={[styles.wrapper, style]}
       >
         <LinearGradient
@@ -67,7 +67,6 @@ export const Button: React.FC<ButtonProps> = ({
           style={[
             styles.baseButton,
             sizeButtonStyles[size],
-            styles.gradientShadow,
             disabled && styles.disabledButton,
           ]}
         >
@@ -85,7 +84,7 @@ export const Button: React.FC<ButtonProps> = ({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
       style={[
         styles.baseButton,
         sizeButtonStyles[size],
@@ -111,23 +110,17 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   baseButton: {
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    width: '100%',
   },
   baseText: {
     fontFamily: Typography.family.mono,
     fontWeight: '700',
-    letterSpacing: 1.5,
+    letterSpacing: 2.2,
     textTransform: 'uppercase',
-  },
-  gradientShadow: {
-    shadowColor: Colors.cyan,
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
   },
   disabledButton: {
     opacity: 0.5,
@@ -139,41 +132,36 @@ const styles = StyleSheet.create({
 
 const sizeButtonStyles = StyleSheet.create({
   sm: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    height: 38,
+    paddingHorizontal: 16,
   },
   default: {
-    paddingVertical: 13,
+    height: 48,
     paddingHorizontal: 20,
   },
   lg: {
-    paddingVertical: 16,
+    height: 52,
     paddingHorizontal: 24,
   },
 });
 
 const sizeTextStyles = StyleSheet.create({
   sm: {
-    fontSize: 9,
+    fontSize: 10,
   },
   default: {
     fontSize: 11,
   },
   lg: {
-    fontSize: 13,
+    fontSize: 12,
   },
 });
 
 const variantButtonStyles = StyleSheet.create({
   primary: {
-    backgroundColor: 'rgba(0, 217, 255, 0.1)',
-    borderColor: 'rgba(0, 217, 255, 0.4)',
-    borderWidth: 1,
-    shadowColor: Colors.cyan,
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 4,
+    backgroundColor: 'rgba(0, 217, 255, 0.08)',
+    borderColor: 'rgba(0, 217, 255, 0.45)',
+    borderWidth: 1.2,
   },
   gradient: {},
   secondary: {
@@ -195,7 +183,7 @@ const variantButtonStyles = StyleSheet.create({
 
 const variantTextStyles = StyleSheet.create({
   primary: {
-    color: Colors.cyan,
+    color: '#00D9FF',
   },
   gradient: {
     color: '#02060B',

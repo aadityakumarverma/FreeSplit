@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
@@ -19,6 +19,10 @@ const FreeSplitTheme = {
 };
 
 function App() {
+  useEffect(() => {
+    StatusBar.setBarStyle('light-content', true);
+  }, []);
+
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="light-content" />

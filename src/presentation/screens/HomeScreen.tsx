@@ -3,152 +3,132 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../theme/Colors';
 import { Typography } from '../../theme/Typography';
 import { TopAppBar } from '../components/common/TopAppBar';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { BalanceCard } from '../components/cards/BalanceCard';
-import { GroupCard } from '../components/cards/GroupCard';
-import { TransactionRow } from '../components/cards/TransactionRow';
 import { Button } from '../components/common/Button';
+import { HudCard } from '../components/common/HudCard';
+import { ParticleBackground } from '../components/common/ParticleBackground';
 
 export const HomeScreen: React.FC = () => {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+  const insets = useSafeAreaInsets();
 
-      {/* Top App Header */}
-      <TopAppBar
-        title="FREESPLIT"
-        subtitle="FINANCIAL // SYSTEM"
-        onNotificationPress={() => {}}
-        onProfilePress={() => {}}
-      />
+  return (
+    <View style={styles.container}>
+      {/* Subtle particle background */}
+      <ParticleBackground nodeCount={10} maxDistance={100} />
+
+      {/* Top App Header with proper insets */}
+      <View style={{ paddingTop: insets.top, backgroundColor: Colors.card }}>
+        <TopAppBar
+          title="FREESPLIT"
+          subtitle="FINANCIAL // SYSTEM"
+          onNotificationPress={() => {}}
+          onProfilePress={() => {}}
+        />
+      </View>
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: Math.max(insets.bottom + 20, 32) },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* System Online Status */}
         <View style={styles.statusRow}>
-          <StatusBadge status="online" label="SYSTEM ONLINE // 3 GROUPS SYNCED" />
+          <StatusBadge status="online" label="SYSTEM READY // 0 GROUPS ACTIVE" />
         </View>
 
-        {/* Financial Net Balance Card */}
+        {/* Financial Net Balance Card - Zero Initial State */}
         <BalanceCard
-          amount="+₹4,350.00"
+          amount="₹0.00"
           label="OVERALL NET BALANCE"
-          variant="positive"
-          subtitle="You are owed money across all active groups"
+          variant="neutral"
+          subtitle="All balances settled. No pending debts."
           style={styles.mainBalanceCard}
         />
 
-        {/* Secondary Metrics Row */}
+        {/* Secondary Metrics Row - Initial State */}
         <View style={styles.metricsRow}>
           <View style={styles.metricItem}>
             <BalanceCard
-              amount="₹5,200"
+              amount="₹0"
               label="YOU ARE OWED"
-              variant="positive"
+              variant="neutral"
             />
           </View>
           <View style={styles.metricItem}>
             <BalanceCard
-              amount="₹850"
+              amount="₹0"
               label="YOU OWE"
-              variant="negative"
+              variant="neutral"
             />
           </View>
         </View>
 
-        {/* Quick Action Button */}
-        <Button
-          title="+ RECORD NEW EXPENSE"
-          variant="gradient"
-          size="default"
-          style={styles.addExpenseButton}
-          onPress={() => {}}
-        />
-
-        {/* Active Groups Section */}
+        {/* Active Groups - Initial Empty State */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>ACTIVE GROUPS</Text>
-            <Text style={styles.sectionCount}>03 TOTAL</Text>
+            <Text style={styles.sectionCount}>00 TOTAL</Text>
           </View>
 
-          <GroupCard
-            name="GOA TRIP 2026"
-            members={4}
-            total="₹28,400"
-            active
-            memberInitials={['A', 'P', 'R', 'S']}
-            onPress={() => {}}
-          />
-
-          <GroupCard
-            name="APARTMENT 402 FLATMATES"
-            members={3}
-            total="₹14,500"
-            memberInitials={['A', 'R', 'Y']}
-            onPress={() => {}}
-          />
-
-          <GroupCard
-            name="WEEKEND DINNER & MOVIES"
-            members={5}
-            total="₹6,200"
-            memberInitials={['P', 'S', 'M', 'A', 'K']}
-            onPress={() => {}}
-          />
+          <HudCard elevated style={styles.emptyCard}>
+            <View style={styles.emptyIconCircle}>
+              <Text style={styles.emptyIconText}>⬡</Text>
+            </View>
+            <Text style={styles.emptyTitle}>NO ACTIVE GROUPS</Text>
+            <Text style={styles.emptySubtitle}>
+              You haven't joined or created any groups yet. Create a group to start tracking and splitting shared expenses.
+            </Text>
+            <Button
+              title="+ CREATE FIRST GROUP"
+              variant="primary"
+              size="default"
+              onPress={() => {}}
+              style={styles.emptyButton}
+            />
+          </HudCard>
         </View>
 
-        {/* Recent Transactions Section */}
+        {/* Recent Transactions - Initial Empty State */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>RECENT ACTIVITY</Text>
-            <Text style={styles.sectionCount}>LATEST TRANSFERS</Text>
+            <Text style={styles.sectionCount}>00 TRANSACTIONS</Text>
           </View>
 
-          <View style={styles.transactionCard}>
-            <TransactionRow
-              name="Aarav Sharma"
-              amount="₹1,200.00"
-              direction="owed"
-              date="YESTERDAY 21:40 // GOA TRIP"
-              avatar="A"
+          <HudCard elevated style={styles.emptyCard}>
+            <View style={styles.emptyIconCircle}>
+              <Text style={styles.emptyIconText}>⌁</Text>
+            </View>
+            <Text style={styles.emptyTitle}>NO ACTIVITY YET</Text>
+            <Text style={styles.emptySubtitle}>
+              Transactions, payments, and debt optimizations will appear here once expenses are added.
+            </Text>
+            <Button
+              title="+ ADD NEW EXPENSE"
+              variant="ghost"
+              size="default"
               onPress={() => {}}
+              style={styles.emptyButton}
             />
-            <TransactionRow
-              name="Priya Patel"
-              amount="₹450.00"
-              direction="owe"
-              date="11 SEP 14:15 // DINNER"
-              avatar="P"
-              onPress={() => {}}
-            />
-            <TransactionRow
-              name="Rohit Verma"
-              amount="₹1,000.00"
-              direction="owed"
-              date="09 SEP 19:30 // APARTMENT 402"
-              avatar="R"
-              onPress={() => {}}
-            />
-          </View>
+          </HudCard>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.bg,
   },
@@ -157,7 +137,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 40,
   },
   statusRow: {
     marginBottom: 14,
@@ -168,22 +147,19 @@ const styles = StyleSheet.create({
   metricsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   metricItem: {
     flex: 1,
   },
-  addExpenseButton: {
-    marginBottom: 20,
-  },
   section: {
-    marginBottom: 20,
+    marginBottom: 22,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontFamily: Typography.family.mono,
@@ -198,12 +174,43 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     color: Colors.textMuted,
   },
-  transactionCard: {
-    backgroundColor: Colors.cardElevated,
-    borderRadius: 14,
+  emptyCard: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+  },
+  emptyIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 217, 255, 0.08)',
+    borderColor: 'rgba(0, 217, 255, 0.25)',
     borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  emptyIconText: {
+    fontSize: 20,
+    color: Colors.cyan,
+  },
+  emptyTitle: {
+    fontFamily: Typography.family.mono,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    color: Colors.textPrimary,
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    fontFamily: Typography.family.body,
+    fontSize: 12,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  emptyButton: {
+    width: '100%',
   },
 });

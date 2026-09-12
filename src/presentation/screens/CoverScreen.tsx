@@ -4,21 +4,22 @@ import {
   Text,
   StyleSheet,
   Animated,
-  SafeAreaView,
-  StatusBar,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Colors } from '../../theme/Colors';
 import { Typography } from '../../theme/Typography';
 import { FreeSplitLogo } from '../components/common/FreeSplitLogo';
 import { Button } from '../components/common/Button';
+import { ParticleBackground } from '../components/common/ParticleBackground';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cover'>;
 
 export const CoverScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const insets = useSafeAreaInsets();
   const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -39,9 +40,19 @@ export const CoverScreen: React.FC = () => {
   }, [floatAnim]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.container}>
+    <View style={styles.container}>
+      {/* Animated Moving Particles Background */}
+      <ParticleBackground nodeCount={16} />
+
+      <View
+        style={[
+          styles.contentWrapper,
+          {
+            paddingTop: Math.max(insets.top + 8, 20),
+            paddingBottom: Math.max(insets.bottom + 8, 20),
+          },
+        ]}
+      >
         {/* Top Status Indicators */}
         <View style={styles.topBar}>
           <View>
@@ -100,20 +111,19 @@ export const CoverScreen: React.FC = () => {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  container: {
+  contentWrapper: {
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'space-between',
-    paddingVertical: 16,
   },
   topBar: {
     flexDirection: 'row',
@@ -190,8 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomSection: {
-    gap: 12,
-    marginBottom: 8,
+    gap: 10,
   },
   primaryButton: {
     marginBottom: 4,
