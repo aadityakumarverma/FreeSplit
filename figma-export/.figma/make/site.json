@@ -1,0 +1,11 @@
+{
+  "title": "FreeSplit",
+  "description": "Streamlines project collaboration by enabling teams to design, share, and manage tasks efficiently in a unified workspace.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
