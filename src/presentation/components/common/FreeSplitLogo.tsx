@@ -9,7 +9,7 @@ interface FreeSplitLogoProps {
 }
 
 export const FreeSplitLogo: React.FC<FreeSplitLogoProps> = ({
-  size = 48,
+  size = 68,
   showGlow = false,
   style,
 }) => {
@@ -20,95 +20,95 @@ export const FreeSplitLogo: React.FC<FreeSplitLogoProps> = ({
           style={[
             styles.glow,
             {
-              width: size * 1.6,
-              height: size * 1.6,
-              borderRadius: size * 0.8,
+              width: size * 1.5,
+              height: size * 1.5,
+              borderRadius: size * 0.75,
             },
           ]}
         />
       )}
       <Svg width={size} height={size} viewBox="0 0 48 48">
-        {/* Outer ring */}
+        {/* Outer circular boundary */}
         <Circle
           cx="24"
           cy="24"
           r="22"
           stroke="#00D9FF"
-          strokeWidth="1"
-          strokeOpacity="0.3"
+          strokeWidth="1.2"
+          strokeOpacity="0.35"
         />
 
-        {/* Left node (Cyan) */}
+        {/* Top Node (Purple #7C3CFF) */}
         <Circle
-          cx="14"
-          cy="24"
+          cx="24"
+          cy="11"
+          r="4.5"
+          fill="#02060B"
+          stroke="#7C3CFF"
+          strokeWidth="1.6"
+        />
+        <Circle cx="24" cy="11" r="2" fill="#7C3CFF" />
+
+        {/* Left Node (Cyan #00D9FF) */}
+        <Circle
+          cx="13"
+          cy="27"
           r="5"
           fill="#02060B"
           stroke="#00D9FF"
-          strokeWidth="1.5"
+          strokeWidth="1.6"
         />
-        <Circle cx="14" cy="24" r="2.5" fill="#00D9FF" />
+        <Circle cx="13" cy="27" r="2.2" fill="#00D9FF" />
 
-        {/* Right node (Green) */}
+        {/* Right Node (Green #00F5A0) */}
         <Circle
-          cx="34"
-          cy="24"
+          cx="35"
+          cy="27"
           r="5"
           fill="#02060B"
           stroke="#00F5A0"
-          strokeWidth="1.5"
+          strokeWidth="1.6"
         />
-        <Circle cx="34" cy="24" r="2.5" fill="#00F5A0" />
+        <Circle cx="35" cy="27" r="2.2" fill="#00F5A0" />
 
-        {/* Top node (Purple) */}
-        <Circle
-          cx="24"
-          cy="10"
-          r="3.5"
-          fill="#02060B"
-          stroke="#7C3CFF"
-          strokeWidth="1.5"
-        />
-        <Circle cx="24" cy="10" r="1.5" fill="#7C3CFF" />
-
-        {/* Connector lines */}
+        {/* Connector Lines forming the triangular network */}
         <Line
-          x1="19"
-          y1="24"
-          x2="29"
-          y2="24"
+          x1="18"
+          y1="27"
+          x2="30"
+          y2="27"
           stroke="#00D9FF"
           strokeWidth="1"
-          strokeOpacity="0.6"
-        />
-        <Line
-          x1="14"
-          y1="19"
-          x2="24"
-          y2="13"
-          stroke="#7C3CFF"
-          strokeWidth="0.8"
           strokeOpacity="0.5"
         />
         <Line
-          x1="34"
-          y1="19"
-          x2="24"
-          y2="13"
+          x1="15"
+          y1="23"
+          x2="22"
+          y2="15"
           stroke="#7C3CFF"
-          strokeWidth="0.8"
+          strokeWidth="1"
+          strokeOpacity="0.5"
+        />
+        <Line
+          x1="33"
+          y1="23"
+          x2="26"
+          y2="15"
+          stroke="#7C3CFF"
+          strokeWidth="1"
           strokeOpacity="0.5"
         />
 
-        {/* Center diamond & point */}
+        {/* Center Diamond & Connection Hub */}
         <Polygon
-          points="24,20 28,24 24,28 20,24"
+          points="24,23 27.5,27 24,31 20.5,27"
           fill="none"
           stroke="#00D9FF"
-          strokeWidth="0.8"
-          strokeOpacity="0.4"
+          strokeWidth="0.9"
+          strokeOpacity="0.5"
         />
-        <Circle cx="24" cy="24" r="1.5" fill="#00D9FF" fillOpacity="0.7" />
+        <Circle cx="24" cy="27" r="1.5" fill="#00D9FF" fillOpacity="0.85" />
       </Svg>
     </View>
   );
@@ -121,11 +121,11 @@ const styles = StyleSheet.create({
   },
   glow: {
     position: 'absolute',
-    backgroundColor: 'rgba(0, 217, 255, 0.12)',
+    backgroundColor: 'rgba(0, 217, 255, 0.08)',
     shadowColor: '#00D9FF',
-    shadowOpacity: 0.8,
-    shadowRadius: 24,
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 8,
+    elevation: 6,
   },
 });

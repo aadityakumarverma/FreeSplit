@@ -4,14 +4,13 @@ import {
   Text,
   StyleSheet,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Colors } from '../../theme/Colors';
 import { Typography } from '../../theme/Typography';
 import { FreeSplitLogo } from '../components/common/FreeSplitLogo';
-import { Button } from '../components/common/Button';
 import { ParticleBackground } from '../components/common/ParticleBackground';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
@@ -19,190 +18,225 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cover'>;
 
 export const CoverScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const insets = useSafeAreaInsets();
-  const floatAnim = useRef(new Animated.Value(0)).current;
 
+  // Animated loader dots
+  const dot1Anim = useRef(new Animated.Value(0.3)).current;
+  const dot2Anim = useRef(new Animated.Value(0.3)).current;
+  const dot3Anim = useRef(new Animated.Value(0.3)).current;
+
+  // Staggered pulsing loader loop
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -8,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, [floatAnim]);
+    const createDotAnimation = (anim: Animated.Value, delay: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0.25,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.delay(Math.max(0, 800 - delay)),
+        ]),
+      );
+    };
+
+    const anim1 = createDotAnimation(dot1Anim, 0);
+    const anim2 = createDotAnimation(dot2Anim, 250);
+    const anim3 = createDotAnimation(dot3Anim, 500);
+
+    anim1.start();
+    anim2.start();
+    anim3.start();
+
+    // Auto-navigate to Onboarding after loader completes initial cycle
+    const timer = setTimeout(() => {
+      navigation.navigate('Onboarding');
+    }, 2500);
+
+    return () => {
+      anim1.stop();
+      anim2.stop();
+      anim3.stop();
+      clearTimeout(timer);
+    };
+  }, [dot1Anim, dot2Anim, dot3Anim, navigation]);
+
+  const handlePress = () => {
+    navigation.navigate('Onboarding');
+  };
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={handlePress}
+      style={styles.container}
+    >
       {/* Animated Moving Particles Background */}
-      <ParticleBackground nodeCount={16} />
+      <ParticleBackground nodeCount={14} maxDistance={110} />
 
-      <View
-        style={[
-          styles.contentWrapper,
-          {
-            paddingTop: Math.max(insets.top + 8, 20),
-            paddingBottom: Math.max(insets.bottom + 8, 20),
-          },
-        ]}
-      >
-        {/* Top Status Indicators */}
-        <View style={styles.topBar}>
-          <View>
-            <Text style={styles.monoMuted}>SYS.INIT / DESIGN.OS</Text>
-            <Text style={styles.monoOnline}>● ONLINE</Text>
-          </View>
-          <View style={styles.topRight}>
-            <Text style={styles.monoMuted}>BUILD 2026.09</Text>
-            <Text style={styles.monoMuted}>REV 01.0</Text>
-          </View>
+      <View style={styles.centerContent}>
+        {/* FreeSplit Connected Logo */}
+        <FreeSplitLogo size={70} showGlow style={styles.logo} />
+
+        {/* FreeSplit Wordmark */}
+        <Text style={styles.brandTitle}>
+          FREE<Text style={styles.brandAccent}>SPLIT</Text>
+        </Text>
+
+        {/* Tagline */}
+        <Text style={styles.tagline}>
+          SPLIT SMARTER. SETTLE SIMPLER.
+        </Text>
+
+        {/* Technical Specification Box */}
+        <View style={styles.techBox}>
+          <Text style={styles.techTitle}>FINANCIAL INTELLIGENCE SYSTEM</Text>
+          <Text style={styles.techVersion}>VERSION 01.0</Text>
         </View>
 
-        {/* Center Futuristic Brand Hero */}
-        <Animated.View
-          style={[
-            styles.centerSection,
-            { transform: [{ translateY: floatAnim }] },
-          ]}
-        >
-          <FreeSplitLogo size={80} showGlow />
-
-          <View style={styles.wordmarkContainer}>
-            <Text style={styles.brandTitle}>
-              FREE<Text style={styles.brandAccent}>SPLIT</Text>
-            </Text>
-
-            <View style={styles.dividerLine} />
-
-            <Text style={styles.brandTagline}>
-              Split smarter. Settle simpler.
-            </Text>
-          </View>
-
-          {/* Technical Spec Box */}
-          <View style={styles.techBadge}>
-            <Text style={styles.techBadgeTitle}>FINANCIAL INTELLIGENCE SYSTEM</Text>
-            <Text style={styles.techBadgeSubtitle}>VERSION 01.0</Text>
-          </View>
-        </Animated.View>
-
-        {/* Bottom Actions */}
-        <View style={styles.bottomSection}>
-          <Button
-            title="ENTER SYSTEM"
-            variant="gradient"
-            size="lg"
-            onPress={() => navigation.navigate('Onboarding')}
-            style={styles.primaryButton}
+        {/* Three Horizontal Animated Loader Dots (Cyan, Purple, Green) */}
+        <View style={styles.loaderRow}>
+          <Animated.View
+            style={[
+              styles.loaderDot,
+              styles.dotCyan,
+              {
+                opacity: dot1Anim,
+                transform: [
+                  {
+                    scale: dot1Anim.interpolate({
+                      inputRange: [0.25, 1],
+                      outputRange: [0.8, 1.3],
+                    }),
+                  },
+                ],
+              },
+            ]}
           />
-
-          <Button
-            title="GO TO DASHBOARD"
-            variant="ghost"
-            size="default"
-            onPress={() => navigation.navigate('Home')}
+          <Animated.View
+            style={[
+              styles.loaderDot,
+              styles.dotPurple,
+              {
+                opacity: dot2Anim,
+                transform: [
+                  {
+                    scale: dot2Anim.interpolate({
+                      inputRange: [0.25, 1],
+                      outputRange: [0.8, 1.3],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.loaderDot,
+              styles.dotGreen,
+              {
+                opacity: dot3Anim,
+                transform: [
+                  {
+                    scale: dot3Anim.interpolate({
+                      inputRange: [0.25, 1],
+                      outputRange: [0.8, 1.3],
+                    }),
+                  },
+                ],
+              },
+            ]}
           />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: '#02060B',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  contentWrapper: {
-    flex: 1,
+  centerContent: {
+    alignItems: 'center',
+    width: '100%',
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
   },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  topRight: {
-    alignItems: 'flex-end',
-  },
-  monoMuted: {
-    fontFamily: Typography.family.mono,
-    fontSize: 9,
-    color: Colors.textMuted,
-    letterSpacing: 1.2,
-  },
-  monoOnline: {
-    fontFamily: Typography.family.mono,
-    fontSize: 9,
-    color: Colors.cyan,
-    letterSpacing: 1,
-    marginTop: 2,
-  },
-  centerSection: {
-    alignItems: 'center',
-    gap: 20,
-  },
-  wordmarkContainer: {
-    alignItems: 'center',
-    marginTop: 8,
+  logo: {
+    marginBottom: 28,
   },
   brandTitle: {
     fontFamily: Typography.family.display,
-    fontSize: 42,
+    fontSize: 48,
     fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: 2.5,
+    color: '#FFFFFF',
+    letterSpacing: 2,
+    lineHeight: 52,
+    textAlign: 'center',
+    marginBottom: 14,
   },
   brandAccent: {
     color: Colors.cyan,
   },
-  dividerLine: {
-    width: 220,
-    height: 1.5,
-    backgroundColor: 'rgba(0, 217, 255, 0.4)',
-    marginVertical: 12,
-  },
-  brandTagline: {
-    fontFamily: Typography.family.body,
-    fontSize: 13,
-    color: Colors.textSecondary,
-    letterSpacing: 2,
+  tagline: {
+    fontFamily: Typography.family.mono,
+    fontSize: 11,
+    color: '#8A98A8',
+    letterSpacing: 3.5,
     textTransform: 'uppercase',
+    textAlign: 'center',
+    marginBottom: 28,
   },
-  techBadge: {
-    borderColor: 'rgba(0, 217, 255, 0.2)',
+  techBox: {
+    borderColor: 'rgba(0, 217, 255, 0.22)',
     borderWidth: 1,
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(0, 217, 255, 0.04)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    backgroundColor: 'rgba(7, 17, 28, 0.85)',
     alignItems: 'center',
+    marginBottom: 36,
   },
-  techBadgeTitle: {
+  techTitle: {
     fontFamily: Typography.family.mono,
     fontSize: 9,
-    letterSpacing: 1.5,
+    letterSpacing: 2,
     color: Colors.cyan,
+    fontWeight: '600',
   },
-  techBadgeSubtitle: {
+  techVersion: {
     fontFamily: Typography.family.mono,
     fontSize: 8,
-    letterSpacing: 1.2,
-    color: Colors.textMuted,
-    marginTop: 2,
+    letterSpacing: 1.5,
+    color: '#526273',
+    marginTop: 4,
   },
-  bottomSection: {
-    gap: 10,
+  loaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    height: 20,
   },
-  primaryButton: {
-    marginBottom: 4,
+  loaderDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+  },
+  dotCyan: {
+    backgroundColor: '#00D9FF',
+  },
+  dotPurple: {
+    backgroundColor: '#7C3CFF',
+  },
+  dotGreen: {
+    backgroundColor: '#00F5A0',
   },
 });

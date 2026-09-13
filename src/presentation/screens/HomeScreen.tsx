@@ -15,8 +15,11 @@ import { Button } from '../components/common/Button';
 import { HudCard } from '../components/common/HudCard';
 import { ParticleBackground } from '../components/common/ParticleBackground';
 
+import { useAuth } from '../../data/auth/AuthContext';
+
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   return (
     <View style={styles.container}>
@@ -27,7 +30,7 @@ export const HomeScreen: React.FC = () => {
       <View style={{ paddingTop: insets.top, backgroundColor: Colors.card }}>
         <TopAppBar
           title="FREESPLIT"
-          subtitle="FINANCIAL // SYSTEM"
+          subtitle={user ? user.email.toUpperCase() : 'FINANCIAL // SYSTEM'}
           onNotificationPress={() => {}}
           onProfilePress={() => {}}
         />

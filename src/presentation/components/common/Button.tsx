@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  View,
   TouchableOpacity,
   Text,
   StyleSheet,
@@ -18,6 +19,7 @@ export type ButtonSize = 'sm' | 'default' | 'lg';
 interface ButtonProps {
   title?: string;
   children?: React.ReactNode;
+  icon?: React.ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
   disabled?: boolean;
@@ -29,6 +31,7 @@ interface ButtonProps {
 
 export const Button: React.FC<ButtonProps> = ({
   title,
+  icon,
   children,
   variant = 'primary',
   size = 'default',
@@ -39,17 +42,20 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
 }) => {
   const content = children || (
-    <Text
-      style={[
-        styles.baseText,
-        sizeTextStyles[size],
-        variantTextStyles[variant],
-        disabled && styles.disabledText,
-        textStyle,
-      ]}
-    >
-      {title}
-    </Text>
+    <View style={styles.innerContentRow}>
+      {icon && <View style={styles.iconContainer}>{icon}</View>}
+      <Text
+        style={[
+          styles.baseText,
+          sizeTextStyles[size],
+          variantTextStyles[variant],
+          disabled && styles.disabledText,
+          textStyle,
+        ]}
+      >
+        {title}
+      </Text>
+    </View>
   );
 
   if (variant === 'gradient') {
@@ -115,6 +121,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     width: '100%',
+  },
+  innerContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconContainer: {
+    marginRight: 10,
   },
   baseText: {
     fontFamily: Typography.family.mono,

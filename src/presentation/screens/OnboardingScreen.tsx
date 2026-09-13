@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,25 +10,27 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Typography } from '../../theme/Typography';
 import { Button } from '../components/common/Button';
+import { GoogleIcon } from '../components/common/GoogleIcon';
 import { ParticleBackground } from '../components/common/ParticleBackground';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { useAuth } from '../../data/auth/AuthContext';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 
 export const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const insets = useSafeAreaInsets();
+  const { signInWithGoogle, isLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
     if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
-    } else {
-      navigation.navigate('Home');
     }
   };
 
-  const handleSignIn = () => {
+  const handleGoogleLogin = async () => {
+    await signInWithGoogle();
     navigation.navigate('Home');
   };
 
@@ -43,7 +44,7 @@ export const OnboardingScreen: React.FC = () => {
           styles.contentWrapper,
           {
             paddingTop: Math.max(insets.top + 10, 24),
-            paddingBottom: Math.max(insets.bottom + 10, 24),
+            paddingBottom: Math.max(insets.bottom + 16, 28),
           },
         ]}
       >
@@ -56,15 +57,15 @@ export const OnboardingScreen: React.FC = () => {
 
         {/* Text and Actions Section */}
         <View style={styles.bottomSection}>
-          {/* Tech Status Label */}
-          <View style={styles.techLabelRow}>
-            <Text style={styles.cyanBullet}>●</Text>
-            <Text style={styles.techLabelText}>
-              {currentStep === 0 && 'FINANCIAL NETWORK INITIALIZING...'}
-              {currentStep === 1 && 'BALANCE ENGINE ACTIVE'}
-              {currentStep === 2 && 'SETTLEMENT ENGINE OPTIMIZED'}
-            </Text>
-          </View>
+          {/* Tech Status Label (only on Screen 1) */}
+          {currentStep === 0 && (
+            <View style={styles.techLabelRow}>
+              <Text style={styles.cyanBullet}>●</Text>
+              <Text style={styles.techLabelText}>
+                FINANCIAL NETWORK INITIALIZING...
+              </Text>
+            </View>
+          )}
 
           {/* Heading */}
           <Text style={styles.heading}>
@@ -96,32 +97,26 @@ export const OnboardingScreen: React.FC = () => {
             ))}
           </View>
 
-          {/* Primary Action Button */}
-          <Button
-            title={
-              currentStep === 0
-                ? 'GET STARTED'
-                : currentStep === 1
-                ? 'NEXT'
-                : 'CREATE MY ACCOUNT'
-            }
-            variant={currentStep === 2 ? 'gradient' : 'primary'}
-            size="lg"
-            onPress={handleNext}
-            style={styles.actionButton}
-          />
-
-          {/* Sign In Link */}
-          <TouchableOpacity
-            onPress={handleSignIn}
-            style={styles.signInRow}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.signInText}>
-              Already have an account?{' '}
-              <Text style={styles.signInLink}>Sign in</Text>
-            </Text>
-          </TouchableOpacity>
+          {/* Action Buttons: Screen 1 & 2 use NEXT / GET STARTED; Screen 3 uses GOOGLE LOGIN */}
+          {currentStep < 2 ? (
+            <Button
+              title={currentStep === 0 ? 'GET STARTED' : 'NEXT'}
+              variant="primary"
+              size="lg"
+              onPress={handleNext}
+              style={styles.actionButton}
+            />
+          ) : (
+            <Button
+              title="CONTINUE WITH GOOGLE"
+              icon={<GoogleIcon size={18} />}
+              variant="gradient"
+              size="lg"
+              loading={isLoading}
+              onPress={handleGoogleLogin}
+              style={styles.actionButton}
+            />
+          )}
         </View>
       </View>
     </View>
@@ -130,7 +125,6 @@ export const OnboardingScreen: React.FC = () => {
 
 // --- SCREEN 1: Orbital Financial Network (Matches Figma Image 1) ---
 const ScreenOneVisual = () => {
-  // Center is at (130, 115) in a 260x230 viewBox
   const CX = 130;
   const CY = 115;
 
@@ -144,7 +138,6 @@ const ScreenOneVisual = () => {
 
   return (
     <View style={styles.graphicBox}>
-      {/* Concentric Guide Rings and Connector Lines */}
       <Svg width={260} height={230} style={StyleSheet.absoluteFill}>
         {/* Outer dashed guide circle */}
         <Circle
@@ -194,7 +187,7 @@ const ScreenOneVisual = () => {
         </View>
       </View>
 
-      {/* Satellite Node Badges with Initial & Label below */}
+      {/* Satellite Node Badges */}
       {satellites.map((node, i) => (
         <View
           key={i}
@@ -270,41 +263,52 @@ const ScreenTwoVisual = () => {
   );
 };
 
-// --- SCREEN 3: Settlement Engine Comparison ---
+// --- SCREEN 3: Settlement Engine Comparison (Matches Image 1 Reference) ---
 const ScreenThreeVisual = () => {
   return (
-    <View style={styles.settlementBox}>
-      {/* Before Box */}
-      <View style={styles.comparisonBoxBefore}>
-        <Text style={styles.comparisonTagBefore}>BEFORE</Text>
-        <Text style={styles.comparisonTitle}>4 TRANSACTIONS</Text>
-        <View style={styles.barGroup}>
+    <View style={styles.settlementContainer}>
+      {/* BEFORE Box */}
+      <View style={styles.beforeCard}>
+        <Text style={styles.beforeLabel}>BEFORE</Text>
+        <Text style={styles.transactionCountText}>4  TRANSACTIONS</Text>
+        <View style={styles.barsRow}>
           {[0, 1, 2, 3].map((idx) => (
-            <View key={idx} style={styles.redBar} />
+            <View key={idx} style={styles.redBarSegment} />
           ))}
         </View>
       </View>
 
-      {/* Downward Engine Flow */}
-      <View style={styles.engineBadgeContainer}>
-        <View style={styles.engineBadge}>
-          <Text style={styles.engineBadgeDot}>●</Text>
-          <Text style={styles.engineBadgeText}>SETTLEMENT ENGINE</Text>
-          <Text style={styles.engineBadgeDot}>●</Text>
+      {/* Intermediate Flow Connector */}
+      <View style={styles.connectorSection}>
+        <View style={styles.connectorLineTop} />
+
+        <View style={styles.settlementPill}>
+          <Text style={styles.settlementPillDot}>●</Text>
+          <Text style={styles.settlementPillText}>SETTLEMENT ENGINE</Text>
+          <Text style={styles.settlementPillDot}>●</Text>
         </View>
-        <Text style={styles.engineArrowText}>↓</Text>
+
+        <View style={styles.connectorLineMid} />
+        <Text style={styles.connectorArrow}>↓</Text>
+        <View style={styles.connectorLineBottom} />
       </View>
 
-      {/* After Box */}
-      <View style={styles.comparisonBoxAfter}>
-        <Text style={styles.comparisonTagAfter}>AFTER</Text>
-        <Text style={styles.comparisonTitle}>2 TRANSACTIONS</Text>
-        <View style={styles.barGroup}>
-          <View style={styles.greenBar} />
-          <View style={styles.greenBar} />
-          <View style={styles.emptyBar} />
-          <View style={styles.emptyBar} />
+      {/* AFTER Box */}
+      <View style={styles.afterCard}>
+        <Text style={styles.afterLabel}>AFTER</Text>
+        <Text style={styles.transactionCountText}>2  TRANSACTIONS</Text>
+        <View style={styles.barsRow}>
+          <View style={styles.greenBarSegment} />
+          <View style={styles.greenBarSegment} />
+          <View style={styles.fadedBarSegment} />
+          <View style={styles.fadedBarSegment} />
         </View>
+      </View>
+
+      {/* Bottom Status Pill */}
+      <View style={styles.optimizedPill}>
+        <Text style={styles.optimizedDot}>●</Text>
+        <Text style={styles.optimizedText}>SETTLEMENT ENGINE  ●  OPTIMIZED</Text>
       </View>
     </View>
   );
@@ -324,6 +328,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 10,
   },
   bottomSection: {
     paddingBottom: 4,
@@ -359,7 +364,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8A98A8',
     lineHeight: 20,
-    marginBottom: 22,
+    marginBottom: 20,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -380,20 +385,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 48, 67, 0.9)',
   },
   actionButton: {
-    marginBottom: 14,
-  },
-  signInRow: {
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  signInText: {
-    fontFamily: Typography.family.body,
-    fontSize: 12,
-    color: '#526273',
-  },
-  signInLink: {
-    color: '#00D9FF',
-    fontWeight: '600',
+    marginBottom: 4,
   },
 
   // Screen 1 styles
@@ -500,99 +492,142 @@ const styles = StyleSheet.create({
     color: '#00D9FF',
   },
 
-  // Screen 3 styles
-  settlementBox: {
+  // Screen 3: Settlement Engine styles (exact Image 1 match)
+  settlementContainer: {
     width: '100%',
     alignItems: 'center',
   },
-  comparisonBoxBefore: {
+  beforeCard: {
     width: '100%',
-    padding: 14,
-    backgroundColor: 'rgba(255, 77, 109, 0.06)',
-    borderColor: 'rgba(255, 77, 109, 0.3)',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: '#07111C',
+    borderColor: 'rgba(255, 77, 109, 0.28)',
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
   },
-  comparisonTagBefore: {
+  beforeLabel: {
     fontFamily: Typography.family.mono,
-    fontSize: 9,
-    letterSpacing: 1.2,
+    fontSize: 10,
+    letterSpacing: 1.5,
     color: '#FF4D6D',
+    fontWeight: '700',
     marginBottom: 4,
   },
-  comparisonTitle: {
+  transactionCountText: {
     fontFamily: Typography.family.mono,
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#F4F8FC',
-    marginBottom: 10,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+    marginBottom: 12,
   },
-  barGroup: {
+  barsRow: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 5,
   },
-  redBar: {
+  redBarSegment: {
     flex: 1,
-    height: 4,
+    height: 3.5,
     borderRadius: 2,
-    backgroundColor: 'rgba(255, 77, 109, 0.6)',
+    backgroundColor: 'rgba(255, 77, 109, 0.7)',
   },
-  engineBadgeContainer: {
-    paddingVertical: 10,
+  connectorSection: {
     alignItems: 'center',
+    marginVertical: 4,
   },
-  engineBadge: {
+  connectorLineTop: {
+    width: 1,
+    height: 14,
+    backgroundColor: 'rgba(0, 217, 255, 0.25)',
+  },
+  settlementPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderColor: 'rgba(124, 60, 255, 0.35)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    borderColor: 'rgba(124, 60, 255, 0.45)',
     borderWidth: 1,
-    backgroundColor: 'rgba(124, 60, 255, 0.08)',
+    backgroundColor: 'rgba(124, 60, 255, 0.12)',
   },
-  engineBadgeDot: {
+  settlementPillDot: {
     fontSize: 6,
     color: '#7C3CFF',
   },
-  engineBadgeText: {
+  settlementPillText: {
     fontFamily: Typography.family.mono,
-    fontSize: 8,
-    letterSpacing: 1.2,
+    fontSize: 9,
+    letterSpacing: 1.5,
     color: '#7C3CFF',
     fontWeight: '700',
   },
-  engineArrowText: {
-    color: 'rgba(0, 217, 255, 0.5)',
-    fontSize: 14,
-    marginTop: 2,
+  connectorLineMid: {
+    width: 1,
+    height: 10,
+    backgroundColor: 'rgba(0, 217, 255, 0.25)',
   },
-  comparisonBoxAfter: {
+  connectorArrow: {
+    color: 'rgba(0, 217, 255, 0.6)',
+    fontSize: 13,
+    lineHeight: 14,
+  },
+  connectorLineBottom: {
+    width: 1,
+    height: 10,
+    backgroundColor: 'rgba(0, 217, 255, 0.25)',
+  },
+  afterCard: {
     width: '100%',
-    padding: 14,
-    backgroundColor: 'rgba(0, 245, 160, 0.06)',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: '#07111C',
     borderColor: 'rgba(0, 245, 160, 0.35)',
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
   },
-  comparisonTagAfter: {
+  afterLabel: {
     fontFamily: Typography.family.mono,
-    fontSize: 9,
-    letterSpacing: 1.2,
+    fontSize: 10,
+    letterSpacing: 1.5,
     color: '#00F5A0',
+    fontWeight: '700',
     marginBottom: 4,
   },
-  greenBar: {
+  greenBarSegment: {
     flex: 1,
-    height: 4,
+    height: 3.5,
     borderRadius: 2,
     backgroundColor: '#00F5A0',
   },
-  emptyBar: {
+  fadedBarSegment: {
     flex: 1,
-    height: 4,
+    height: 3.5,
     borderRadius: 2,
-    backgroundColor: 'rgba(18, 48, 67, 0.6)',
+    backgroundColor: 'rgba(18, 48, 67, 0.55)',
+  },
+  optimizedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    borderColor: 'rgba(0, 245, 160, 0.4)',
+    borderWidth: 1,
+    backgroundColor: 'rgba(0, 245, 160, 0.08)',
+    marginTop: 14,
+  },
+  optimizedDot: {
+    fontSize: 6,
+    color: '#00F5A0',
+  },
+  optimizedText: {
+    fontFamily: Typography.family.mono,
+    fontSize: 8.5,
+    letterSpacing: 1.4,
+    color: '#00F5A0',
+    fontWeight: '700',
   },
 });

@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { Colors } from './src/theme/Colors';
+import { AuthProvider } from './src/data/auth/AuthContext';
 
 const FreeSplitTheme = {
   ...DarkTheme,
@@ -25,10 +26,12 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="light-content" />
-      <NavigationContainer theme={FreeSplitTheme}>
-        <AppNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <StatusBar barStyle="light-content" />
+        <NavigationContainer theme={FreeSplitTheme}>
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
